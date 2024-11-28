@@ -1,0 +1,124 @@
+#include <iostream>
+#include <map>
+#include <tuple>
+#include <string>
+#include <functional>
+#include <typeinfo>
+#include <stdexcept>
+#include <memory>
+#include <boost/variant.hpp>
+
+struct FunctionWrapper {
+    boost::variant<
+            std::function<std::string(void)>,
+            std::function<double(double ,int)>,
+            std::function<std::tuple<int, double, char>(int , double , char )>,
+            std::function<int(int a, double b, char c)>
+            > func;
+};
+
+class AnyFunctionWrapper {
+public:
+    AnyFunctionWrapper()
+    {
+    }
+
+    template<typename T>
+    AnyFunctionWrapper(T funcWrapper) : content(std::move(funcWrapper))
+    {}
+
+    auto &get()
+    {
+        return content;
+    }
+
+private:
+    struct Concept {
+        virtual ~Concept() = default;
+
+        virtual const std::type_info &type() const = 0;
+    };
+
+    FunctionWrapper content;
+};
+
+std::map<std::string, AnyFunctionWrapper> registeredFunctions;
+
+template<typename ReturnType, typename... Args>
+void registerFunction(const std::string &name, ReturnType (*func)(Args...))
+{
+    registeredFunctions[name] = AnyFunctionWrapper(FunctionWrapper{func});
+}
+
+template<typename... Args>
+auto callFunction(const std::string &name, Args &&... args)
+{
+    auto it = registeredFunctions.find(name);
+    if (it != registeredFunctions.end()) {
+        try {
+            auto &funcWrapper = it->second.get();
+            return boost::apply_visitor(
+                    [&](auto& f) -> decltype(auto) {
+                        return f(std::forward<Args>(args)...);
+                    },
+                    funcWrapper .func
+            );
+        } catch (const std::runtime_error &) {
+            throw std::runtime_error("Function signature mismatch for: " + name);
+        }
+    } else {
+        throw std::runtime_error("Function not found: " + name);
+    }
+}
+
+int myIntFunction(int a, double b, char c)
+{
+    std::cout << "myIntFunction called with: " << a << ", " << b << ", " << c << std::endl;
+    return a + static_cast<int>(b) + static_cast<int>(c);
+}
+
+std::tuple<int, double, char> myTupleFunction(int a, double b, char c)
+{
+    std::cout << "myTupleFunction called with: " << a << ", " << b << ", " << c << std::endl;
+    return std::make_tuple(a * 2, b * 2, c + 1);
+}
+
+double myDoubleFunction(double a, int b)
+{
+    std::cout << "myDoubleFunction called with: " << a << ", " << b << std::endl;
+    return a / b;
+}
+
+std::string myStringFunction()
+{
+    std::cout << "myStringFunction called" << std::endl;
+    return "Hello from myStringFunction";
+}
+
+int main3()
+{
+    registerFunction("myIntFunction", myIntFunction);
+    registerFunction("myTupleFunction", myTupleFunction);
+    registerFunction("myDoubleFunction", myDoubleFunction);
+    registerFunction("myStringFunction", myStringFunction);
+
+    std::cout << registeredFunctions.size() << std::endl;
+    for (auto &itm: registeredFunctions) {
+        std::cout << itm.first << std::endl;
+    }
+
+    int intResult = callFunction("myIntFunction", 1, 2.5, 'a');
+    std::cout << "intResult: " << intResult << std::endl;
+
+    auto tupleResult = callFunction("myTupleFunction", 1, 2.5, 'a');
+    std::cout << "tupleResult: (" << std::get<0>(tupleResult) << ", " << std::get<1>(tupleResult) << ", "
+              << std::get<2>(tupleResult) << ")" << std::endl;
+
+    auto doubleResult = callFunction("myDoubleFunction", 3.14, 10);
+    std::cout << "doubleResult: " << doubleResult << std::endl;
+
+    auto stringResult = callFunction("myStringFunction");
+    std::cout << "stringResult: " << stringResult << std::endl;
+
+    return 0;
+}
