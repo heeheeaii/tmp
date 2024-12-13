@@ -1,4 +1,24 @@
-        template<typename... Args, typename... ArgNam>
-        void registerFunction(const std::string &name, unsigned long long (*func)(Args...), ArgNam... argNam)
+    template<typename...Args>
+        unsigned long long int Use(PacketDevice &device, std::string &errInf, Args... args)
         {
-            static_assert((std::is_same<ArgNam, std::string>::value && ...), "only accept string");
+            auto argTpl = std::make_tuple(args...);
+            auto size = std::tuple_size<decltype(argTpl)>::value;
+            int num = GetVarNum();
+            if (size != num * 2) {
+                errInf = "arg size error";
+                return PACKET_RECEIVE_ERROR;
+            }
+            std::string fName;
+            size_t counter{0};
+            for (int idx{0}; idx < this->data.size(); idx++) {
+                if (this->data[idx]->IsVar()) {
+                    this->data[idx]->GetFunc(fName);
+                    auto fun = *(this->funcs)->find(fName);
+                    size_t counterTmp = counter + 1;
+//                    fun !=
+//                    *(this->funcs)->end() ? fun.second(std::get<counter>(argTpl), std::get<counterTmp>(argTpl)) : 0;
+                    counter += 2;
+                }
+            }
+        }
+    };
