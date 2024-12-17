@@ -1,0 +1,108 @@
+import java.awt.Color
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
+
+object ImageConverter {
+
+    fun convertToGrayscale(inputImagePath: String, outputImagePath: String) {
+        try {
+            val originalImage = ImageIO.read(File(inputImagePath))
+            val width = originalImage.width
+            val height = originalImage.height
+
+            val grayscaleImage = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+
+            for (y in 0 until height) {
+                for (x in 0 until width) {
+                    val rgb = originalImage.getRGB(x, y)
+                    val color = Color(rgb)
+
+                    //  Simple averaging
+                    // val gray = (color.red + color.green + color.blue) / 3
+                    
+                    // Luminosity method (more perceptually accurate)
+                    val gray = (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue).toInt()
+
+
+                    val newRGB = Color(gray, gray, gray).rgb
+                    grayscaleImage.setRGB(x, y, newRGB)
+                }
+            }
+
+            ImageIO.write(grayscaleImage, "jpg", File(outputImagePath))
+            println("Converted to grayscale: $outputImagePath")
+
+        } catch (e: Exception) {
+            println("Error converting image: ${e.message}")
+        }
+    }
+
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        //  Example usage:
+         val inputImagePath = "input.jpg" // Replace with your input image path
+         val outputImagePath = "output.jpg" // Replace with your desired output path
+         convertToGrayscale(inputImagePath, outputImagePath)
+
+
+    }
+}
+
+import org.tensorflow.ndarray.NdArrays
+import org.tensorflow.types.TFloat32
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
+
+object ImageToTensorConverter {
+
+    fun grayscaleImageToTensor(imagePath: String): TFloat32? {
+        try {
+            val image = ImageIO.read(File(imagePath))
+            val width = image.width
+            val height = image.height
+
+            // Create a 3D array for the TensorFlow tensor (1 channel for grayscale)
+            val tensorData = Array(1) { Array(height) { FloatArray(width) } }
+
+            for (y in 0 until height) {
+                for (x in 0 until width) {
+                    val rgb = image.getRGB(x, y)
+                    val gray = (0.299 * Color(rgb).red + 0.587 * Color(rgb).green + 0.114 * Color(rgb).blue).toFloat() / 255.0f // Normalize to 0-1
+
+                    tensorData[0][y][x] = gray
+
+                }
+            }
+
+
+
+            // Create the TensorFlow tensor
+            val tensorShape = longArrayOf(1, height.toLong(), width.toLong(), 1) // Shape: [batch_size, height, width, channels]
+            val tensor = NdArrays.ofFloats(tensorShape).asTFloat32()
+            tensor.set(NdArrays.vectorOf(*tensorData[0].flatMap { it.toList() }.toFloatArray()), 0, 0, 0,0)
+            
+
+
+            return tensor
+        } catch (e: Exception) {
+            println("Error converting image to tensor: ${e.message}")
+            return null
+        }
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val imagePath = "output.jpg" // Replace with your grayscale image path
+        val tensor = grayscaleImageToTensor(imagePath)
+
+        if (tensor != null) {
+            println("Tensor shape: ${tensor.shape().contentToString()}")
+           //  Further processing with the TensorFlow tensor
+           // ...
+
+        }
+    }
+}
