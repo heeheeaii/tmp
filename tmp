@@ -1,24 +1,45 @@
-    template<typename...Args>
-        unsigned long long int Use(PacketDevice &device, std::string &errInf, Args... args)
+      template<typename T>
+        void StringToType(const std::string &str, T dest)
         {
-            auto argTpl = std::make_tuple(args...);
-            auto size = std::tuple_size<decltype(argTpl)>::value;
-            int num = GetVarNum();
-            if (size != num * 2) {
-                errInf = "arg size error";
-                return PACKET_RECEIVE_ERROR;
+            std::istringstream iss(str);
+            char c;
+            if (std::is_same<T, char *>::value || std::is_same<T, unsigned char *>::value) {
+                if (str.length() == 1) {
+                    *dest = str[0];
+                }
+                throw std::invalid_argument("Invalid char conversion: " + str);
             }
-            std::string fName;
-            size_t counter{0};
-            for (int idx{0}; idx < this->data.size(); idx++) {
-                if (this->data[idx]->IsVar()) {
-                    this->data[idx]->GetFunc(fName);
-                    auto fun = *(this->funcs)->find(fName);
-                    size_t counterTmp = counter + 1;
-//                    fun !=
-//                    *(this->funcs)->end() ? fun.second(std::get<counter>(argTpl), std::get<counterTmp>(argTpl)) : 0;
-                    counter += 2;
+            if (std::is_same<T, bool *>::value) {
+                if (str == "true" || str == "True" || str == "TRUE" || str == "1") {
+                    *dest = true;
+                }
+                if (str == "false" || str == "False" || str == "FALSE" || str == "0") {
+                    *dest = false;
+                }
+                throw std::invalid_argument("Invalid bool conversion: " + str);
+            }
+            if (std::is_floating_point<decltype(*dest)>::value) {
+                *dest = std::stof(str);
+            }
+            if (std::is_integral<decltype(*dest)>::value) {
+                if (!(iss >> *dest) || (iss >> c)) {
+                    if (std::is_unsigned<decltype(*dest)>::value) {
+                        try {
+                            unsigned long long ullValue = std::stoull(str);
+                            *dest = ullValue;
+                        } catch (const std::out_of_range &) {
+                            throw std::out_of_range("Out of range for unsigned type: " + str);
+                        }catch (const std::invalid_argument &) {
+                            throw std::invalid_argument("Invalid integral conversion: " + str);
+                        }
+                    }
+                    throw std::invalid_argument("Invalid integral conversion: " + str);
                 }
             }
         }
-    };
+
+
+  int a{0};
+    std::string as = "99";
+    StringToType(as, &a);
+    std::cout << a << std::endl;
