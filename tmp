@@ -1,45 +1,90 @@
-      template<typename T>
-        void StringToType(const std::string &str, T dest)
-        {
-            std::istringstream iss(str);
-            char c;
-            if (std::is_same<T, char *>::value || std::is_same<T, unsigned char *>::value) {
-                if (str.length() == 1) {
-                    *dest = str[0];
-                }
-                throw std::invalid_argument("Invalid char conversion: " + str);
-            }
-            if (std::is_same<T, bool *>::value) {
-                if (str == "true" || str == "True" || str == "TRUE" || str == "1") {
-                    *dest = true;
-                }
-                if (str == "false" || str == "False" || str == "FALSE" || str == "0") {
-                    *dest = false;
-                }
-                throw std::invalid_argument("Invalid bool conversion: " + str);
-            }
-            if (std::is_floating_point<decltype(*dest)>::value) {
-                *dest = std::stof(str);
-            }
-            if (std::is_integral<decltype(*dest)>::value) {
-                if (!(iss >> *dest) || (iss >> c)) {
-                    if (std::is_unsigned<decltype(*dest)>::value) {
-                        try {
-                            unsigned long long ullValue = std::stoull(str);
-                            *dest = ullValue;
-                        } catch (const std::out_of_range &) {
-                            throw std::out_of_range("Out of range for unsigned type: " + str);
-                        }catch (const std::invalid_argument &) {
-                            throw std::invalid_argument("Invalid integral conversion: " + str);
-                        }
-                    }
-                    throw std::invalid_argument("Invalid integral conversion: " + str);
-                }
-            }
-        }
-
-
-  int a{0};
-    std::string as = "99";
-    StringToType(as, &a);
-    std::cout << a << std::endl;
+[0/2] Re-checking globbed directories...
+[1/6] Building CXX object CMakeFiles/leet2.dir/src/PacketManager.cpp.obj
+[2/6] Building CXX object CMakeFiles/leet2.dir/src/tllmApi2.cpp.obj
+FAILED: CMakeFiles/leet2.dir/src/tllmApi2.cpp.obj 
+"D:\app\clion\CLion 2024.2.2\bin\mingw\bin\g++.exe" -DYAML_CPP_STATIC_DEFINE -ID:/code/cpp/include -ID:/code/cpp/3rd/yaml-cpp/include/yaml-cpp -ID:/code/cpp/3rd/yaml-cpp/include -g -std=gnu++14 -fdiagnostics-color=always -MD -MT CMakeFiles/leet2.dir/src/tllmApi2.cpp.obj -MF CMakeFiles\leet2.dir\src\tllmApi2.cpp.obj.d -o CMakeFiles/leet2.dir/src/tllmApi2.cpp.obj -c D:/code/cpp/src/tllmApi2.cpp
+In file included from D:/code/cpp/include/common2/PContent.h:8,
+                 from D:/code/cpp/include/common2/PacketManager.h:4,
+                 from D:/code/cpp/src/tllmApi2.cpp:2:
+D:/code/cpp/include/common2/Util.h: In instantiation of 'void PacketCommon::{anonymous}::NumStrToType(const std::string&, T) [with T = short unsigned int*; std::string = std::__cxx11::basic_string<char>]':
+D:/code/cpp/include/common2/Util.h:120:45:   required from 'std::enable_if_t<(I < sizeof... (Tp)), void> PacketCommon::{anonymous}::TransformByIndex(size_t, std::tuple<_Args2 ...>&, const std::string&) [with long long unsigned int I = 0; Tp = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}; std::enable_if_t<(I < sizeof... (Tp)), void> = void; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/Util.h:162:25:   required from 'void PacketCommon::TransformToTupleElement(size_t, std::tuple<_Args1 ...>&, const std::string&) [with Tp = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/PPacket.h:189:48:   required from 'long long unsigned int PacketCommon::PPacket::AutoTextFillAll(PacketCommon::PContent&, Args ...) [with Args = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}]'
+D:/code/cpp/include/common2/PPacket.h:242:39:   required from 'long long unsigned int PacketCommon::PPacket::AutoFillAll(PacketCommon::PContent&, Args ...) [with Args = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}]'
+D:/code/cpp/include/common2/PacketManager.h:114:45:   required from 'long long unsigned int PacketCommon::PacketManager::ReceiveByDevice(std::string&&, std::string&&, PacketCommon::PacketDevice&, std::string&, Args ...) [with Args = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/src/tllmApi2.cpp:206:29:   required from here
+D:/code/cpp/include/common2/Util.h:82:31: error: request for member 'append' in '* dest', which is of non-class type 'short unsigned int'
+   82 |                         dest->append(str[idx]);
+      |                         ~~~~~~^~~~~~
+D:/code/cpp/include/common2/Util.h: In instantiation of 'void PacketCommon::{anonymous}::NumStrToType(const std::string&, T) [with T = int*; std::string = std::__cxx11::basic_string<char>]':
+D:/code/cpp/include/common2/Util.h:120:45:   required from 'std::enable_if_t<(I < sizeof... (Tp)), void> PacketCommon::{anonymous}::TransformByIndex(size_t, std::tuple<_Args2 ...>&, const std::string&) [with long long unsigned int I = 0; Tp = {int*, long long unsigned int, int*, long long unsigned int, int*, long long unsigned int}; std::enable_if_t<(I < sizeof... (Tp)), void> = void; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/Util.h:162:25:   required from 'void PacketCommon::TransformToTupleElement(size_t, std::tuple<_Args1 ...>&, const std::string&) [with Tp = {int*, long long unsigned int, int*, long long unsigned int, int*, long long unsigned int}; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/PPacket.h:189:48:   required from 'long long unsigned int PacketCommon::PPacket::AutoTextFillAll(PacketCommon::PContent&, Args ...) [with Args = {int*, long long unsigned int, int*, long long unsigned int, int*, long long unsigned int}]'
+D:/code/cpp/include/common2/PPacket.h:242:39:   required from 'long long unsigned int PacketCommon::PPacket::AutoFillAll(PacketCommon::PContent&, Args ...) [with Args = {int*, long long unsigned int, int*, long long unsigned int, int*, long long unsigned int}]'
+D:/code/cpp/include/common2/PacketManager.h:114:45:   required from 'long long unsigned int PacketCommon::PacketManager::ReceiveByDevice(std::string&&, std::string&&, PacketCommon::PacketDevice&, std::string&, Args ...) [with Args = {int*, long long unsigned int, int*, long long unsigned int, int*, long long unsigned int}; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/src/tllmApi2.cpp:239:29:   required from here
+D:/code/cpp/include/common2/Util.h:82:31: error: request for member 'append' in '* dest', which is of non-class type 'int'
+D:/code/cpp/include/common2/Util.h: In instantiation of 'void PacketCommon::{anonymous}::NumStrToType(const std::string&, T) [with T = std::__cxx11::basic_string<char>*; std::string = std::__cxx11::basic_string<char>]':
+D:/code/cpp/include/common2/Util.h:120:45:   required from 'std::enable_if_t<(I < sizeof... (Tp)), void> PacketCommon::{anonymous}::TransformByIndex(size_t, std::tuple<_Args2 ...>&, const std::string&) [with long long unsigned int I = 2; Tp = {int*, long long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, long long unsigned int}; std::enable_if_t<(I < sizeof... (Tp)), void> = void; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/Util.h:122:55:   required from 'std::enable_if_t<(I < sizeof... (Tp)), void> PacketCommon::{anonymous}::TransformByIndex(size_t, std::tuple<_Args2 ...>&, const std::string&) [with long long unsigned int I = 0; Tp = {int*, long long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, long long unsigned int}; std::enable_if_t<(I < sizeof... (Tp)), void> = void; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/Util.h:162:25:   required from 'void PacketCommon::TransformToTupleElement(size_t, std::tuple<_Args1 ...>&, const std::string&) [with Tp = {int*, long long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, long long unsigned int}; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/PPacket.h:189:48:   required from 'long long unsigned int PacketCommon::PPacket::AutoTextFillAll(PacketCommon::PContent&, Args ...) [with Args = {int*, long long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, long long unsigned int}]'
+D:/code/cpp/include/common2/PPacket.h:242:39:   required from 'long long unsigned int PacketCommon::PPacket::AutoFillAll(PacketCommon::PContent&, Args ...) [with Args = {int*, long long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, long long unsigned int}]'
+D:/code/cpp/include/common2/PacketManager.h:114:45:   required from 'long long unsigned int PacketCommon::PacketManager::ReceiveByDevice(std::string&&, std::string&&, PacketCommon::PacketDevice&, std::string&, Args ...) [with Args = {int*, long long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, long long unsigned int}; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/src/tllmApi2.cpp:269:29:   required from here
+D:/code/cpp/include/common2/Util.h:82:37: error: no matching function for call to 'std::__cxx11::basic_string<char>::append(const __gnu_cxx::__alloc_traits<std::allocator<char>, char>::value_type&)'
+   82 |                         dest->append(str[idx]);
+      |                         ~~~~~~~~~~~~^~~~~~~~~~
+In file included from D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/string:54,
+                 from D:/code/cpp/include/common2/PContent.h:5:
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1517:9: note: candidate: 'template<class _InputIterator, class> std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(_InputIterator, _InputIterator) [with <template-parameter-2-2> = _InputIterator; _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]'
+ 1517 |         append(_InputIterator __first, _InputIterator __last)
+      |         ^~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1517:9: note:   template argument deduction/substitution failed:
+D:/code/cpp/include/common2/Util.h:82:37: note:   candidate expects 2 arguments, 1 provided
+   82 |                         dest->append(str[idx]);
+      |                         ~~~~~~~~~~~~^~~~~~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1423:7: note: candidate: 'std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]'
+ 1423 |       append(const basic_string& __str)
+      |       ^~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1423:34: note:   no known conversion for argument 1 from 'const __gnu_cxx::__alloc_traits<std::allocator<char>, char>::value_type' {aka 'const char'} to 'const std::__cxx11::basic_string<char>&'
+ 1423 |       append(const basic_string& __str)
+      |              ~~~~~~~~~~~~~~~~~~~~^~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1441:7: note: candidate: 'std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&, size_type, size_type) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>; size_type = long long unsigned int]'
+ 1441 |       append(const basic_string& __str, size_type __pos, size_type __n = npos)
+      |       ^~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1441:7: note:   candidate expects 3 arguments, 1 provided
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1454:7: note: candidate: 'std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const _CharT*, size_type) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>; size_type = long long unsigned int]'
+ 1454 |       append(const _CharT* __s, size_type __n)
+      |       ^~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1454:7: note:   candidate expects 2 arguments, 1 provided
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1468:7: note: candidate: 'std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const _CharT*) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]' (near match)
+ 1468 |       append(const _CharT* __s)
+      |       ^~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1468:7: note:   conversion of argument 1 would be ill-formed:
+D:/code/cpp/include/common2/Util.h:82:37: error: invalid conversion from '__gnu_cxx::__alloc_traits<std::allocator<char>, char>::value_type' {aka 'char'} to 'const char*' [-fpermissive]
+   82 |                         dest->append(str[idx]);
+      |                         ~~~~~~~~~~~~^~~~~~~~~~
+      |                                     |
+      |                                     __gnu_cxx::__alloc_traits<std::allocator<char>, char>::value_type {aka char}
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1486:7: note: candidate: 'std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(size_type, _CharT) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>; size_type = long long unsigned int]'
+ 1486 |       append(size_type __n, _CharT __c)
+      |       ^~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1486:7: note:   candidate expects 2 arguments, 1 provided
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1497:7: note: candidate: 'std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(std::initializer_list<_Tp>) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]'
+ 1497 |       append(initializer_list<_CharT> __l)
+      |       ^~~~~~
+D:/app/clion/CLion 2024.2.2/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/basic_string.h:1497:39: note:   no known conversion for argument 1 from 'const __gnu_cxx::__alloc_traits<std::allocator<char>, char>::value_type' {aka 'const char'} to 'std::initializer_list<char>'
+ 1497 |       append(initializer_list<_CharT> __l)
+      |              ~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+D:/code/cpp/include/common2/Util.h: In instantiation of 'void PacketCommon::{anonymous}::NumStrToType(const std::string&, T) [with T = unsigned int*; std::string = std::__cxx11::basic_string<char>]':
+D:/code/cpp/include/common2/Util.h:122:55:   recursively required from 'std::enable_if_t<(I < sizeof... (Tp)), void> PacketCommon::{anonymous}::TransformByIndex(size_t, std::tuple<_Args2 ...>&, const std::string&) [with long long unsigned int I = 2; Tp = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}; std::enable_if_t<(I < sizeof... (Tp)), void> = void; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/Util.h:122:55:   required from 'std::enable_if_t<(I < sizeof... (Tp)), void> PacketCommon::{anonymous}::TransformByIndex(size_t, std::tuple<_Args2 ...>&, const std::string&) [with long long unsigned int I = 0; Tp = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}; std::enable_if_t<(I < sizeof... (Tp)), void> = void; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/Util.h:162:25:   required from 'void PacketCommon::TransformToTupleElement(size_t, std::tuple<_Args1 ...>&, const std::string&) [with Tp = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}; size_t = long long unsigned int; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/include/common2/PPacket.h:189:48:   required from 'long long unsigned int PacketCommon::PPacket::AutoTextFillAll(PacketCommon::PContent&, Args ...) [with Args = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}]'
+D:/code/cpp/include/common2/PPacket.h:242:39:   required from 'long long unsigned int PacketCommon::PPacket::AutoFillAll(PacketCommon::PContent&, Args ...) [with Args = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}]'
+D:/code/cpp/include/common2/PacketManager.h:114:45:   required from 'long long unsigned int PacketCommon::PacketManager::ReceiveByDevice(std::string&&, std::string&&, PacketCommon::PacketDevice&, std::string&, Args ...) [with Args = {short unsigned int*, long long unsigned int, short unsigned int*, long long unsigned int, unsigned int*, long long unsigned int}; std::string = std::__cxx11::basic_string<char>]'
+D:/code/cpp/src/tllmApi2.cpp:206:29:   required from here
+D:/code/cpp/include/common2/Util.h:82:31: error: request for member 'append' in '* dest', which is of non-class type 'unsigned int'
+   82 |                         dest->append(str[idx]);
+      |                         ~~~~~~^~~~~~
