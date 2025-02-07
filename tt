@@ -1,0 +1,74 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <unordered_map>
+#include <memory>
+#include <pthread.h> // Required for pthread_self()
+
+class ThreadSingleton {
+private:
+    ThreadSingleton() {
+        std::cout << "ThreadSingleton constructor called in thread " << pthread_self() << std::endl;
+    }
+    ~ThreadSingleton() {
+        std::cout << "ThreadSingleton destructor called in thread " << pthread_self() << std::endl;
+    }
+
+    // Delete copy constructor and assignment operator
+    ThreadSingleton(const ThreadSingleton&) = delete;
+    ThreadSingleton& operator=(const ThreadSingleton&) = delete;
+
+public:
+    static ThreadSingleton& getInstance() {
+        // Get the current thread ID
+        pthread_t threadId = pthread_self();
+
+        // Lock the mutex to protect the thread-local map
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        // Find if the instance exists for the current thread
+        auto it = instances_.find(threadId);
+
+        // If not, create a new instance and store it in the map
+        if (it == instances_.end()) {
+            std::unique_ptr<ThreadSingleton> instance(new ThreadSingleton());
+            it = instances_.insert({threadId, std::move(instance)}).first;
+        }
+
+        // Return the instance
+        return *it->second;
+    }
+
+    void doSomething() {
+        std::cout << "Thread " << pthread_self() << ": ThreadSingleton::doSomething()" << std::endl;
+    }
+
+private:
+    // Map to store instances of ThreadSingleton for each thread
+    static std::unordered_map<pthread_t, std::unique_ptr<ThreadSingleton>> instances_;
+
+    // Mutex to protect the instances_ map
+    static std::mutex mutex_;
+};
+
+// Initialize the static members
+std::unordered_map<pthread_t, std::unique_ptr<ThreadSingleton>> ThreadSingleton::instances_;
+std::mutex ThreadSingleton::mutex_;
+
+void threadFunction() {
+    ThreadSingleton& instance = ThreadSingleton::getInstance();
+    instance.doSomething();
+
+    ThreadSingleton& instance2 = ThreadSingleton::getInstance();
+    instance2.doSomething();
+}
+
+int main() {
+    std::thread t1(threadFunction);
+    std::thread t2(threadFunction);
+
+    t1.join();
+    t2.join();
+
+    return 0;
+}
