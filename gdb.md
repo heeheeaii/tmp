@@ -40,7 +40,10 @@
      ```bash
      docker run --cap-add=SYS_PTRACE -it <image_name>
      ```
-   
+   检查增加成功
+
+​	capsh --print | grep cap_sys.* # cap_sys_ptrace,包含
+​	strace ls # 正常
    - **Linux**:
      默认情况下，Linux 不完全开启 `ptrace` 权限。要修改 `ptrace` 的权限设置，可以编辑 `/etc/sysctl.d/10-ptrace.conf`（或者 `/etc/sysctl.conf`，取决于发行版）文件，在文件中添加或修改以下行：
      
