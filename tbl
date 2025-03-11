@@ -1,0 +1,120 @@
+/*
+ * Copyright (c) SiCARRIER Technologies Co., Ltd. 2025-2025. All rights reserved.
+ */
+
+#ifndef LOGCONTEXT_H
+#define LOGCONTEXT_H
+
+#include <mutex>
+#include <thread>
+#include <unordered_set>
+
+#define CTX_LHLOG_DEBUG(funcCode, format, args...) \
+    do { \
+        if (LogUtil::LogContext::Instance()->CanLog()) { \
+            swp::lh::LogHandler::Log(funcCode, swp::lh::LL_DEBUG, LH_LOCATION, format, ##args); \
+        }  \
+    } while (false)
+
+#define CTX_LHLOG_ERROR(funcCode, format, args...) \
+    do { \
+        LogUtil::LogContext::Instance()->ErrorAppear(); \
+        swp::lh::LogHandler::Log(funcCode, swp::lh::LL_ERROR, LH_LOCATION, format, ##args); \
+    } while (false)
+
+#define CTX_LHLOG_INFO(funcCode, format, args...) \
+    do { \
+        LogUtil::LogContext::Instance()->ErrorAppear(); \
+        swp::lh::LogHandler::Log(funcCode, swp::lh::LL_INFO, LH_LOCATION, format, ##args); \
+    } while (false)
+
+namespace LogUtil {
+    /*
+     * 如果线程日志被抑制，并且counter(通过Increase()使用进行循环计数)等于interval, 或者inertiaCounter(错误惯性，
+     * ErrorAppear()置为inertia)大于0, CanLog()返回true，否则false
+     * 否者返回true
+     */
+    class LogContext {
+    public:
+        LogContext(LogContext &) = delete;
+
+        LogContext &operator=(LogContext &) = delete;
+
+        static LogContext *Instance()
+        {
+            static std::mutex lock;
+            std::lock_guard<std::mutex> lockGuard(lock);
+            static LogContext instance;
+            return &instance;
+        }
+
+        void Increase()
+        {
+            static std::mutex lock{};
+            std::lock_guard<std::mutex> lockGuard{lock};
+            if (inertiaCounter > 0) {
+                --inertiaCounter;
+            } else {
+                if (counter < interval) {
+                   ++counter;
+                } else {
+                    counter = 1;
+                }
+            }
+            std::cout << inertiaCounter << std::endl;
+        }
+
+        void SetInterval(short num)
+        {
+            interval = num;
+        }
+
+        void SetInertia(short num)
+        {
+            inertia = num;
+        }
+
+        void ResetSuppressed(std::thread::id suppressed)
+        {
+            suppressedList.clear();
+            suppressedList.emplace(suppressed);
+        }
+
+        void AppendSuppressed(std::thread::id suppressed)
+        {
+            suppressedList.emplace(suppressed);
+        }
+
+        bool CanLog()
+        {
+            if (HasBeenSuppressed(std::this_thread::get_id())) {
+                return inertiaCounter > 0 || counter >= interval;
+            }
+            return true;
+        }
+
+        void ErrorAppear()
+        {
+            static std::mutex lock{};
+            std::lock_guard<std::mutex> lockGuard{lock};
+            inertiaCounter = inertia;
+            counter = 0;
+        }
+
+    private:
+        short interval{15};
+        short inertia{5}; // 错误惯性
+        int counter{0};
+        short inertiaCounter{inertia};
+        std::unordered_set<std::thread::id> suppressedList; // 抑制线程
+
+        explicit LogContext() = default;
+
+        bool HasBeenSuppressed(std::thread::id suppressed)
+        {
+            return suppressedList.find(suppressed) != suppressedList.end();
+        }
+    };
+}
+
+#endif
